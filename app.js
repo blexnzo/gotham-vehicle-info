@@ -56,7 +56,10 @@ async function searchVehicle() {
 
     try {
         const encodedNumber = encodeURIComponent(vehicleNumber);
-        const API_URL = window.location.origin;
+        // Get the current domain or use a fallback for local development
+        const API_URL = window.location.hostname === 'localhost' 
+            ? 'http://localhost:8080' 
+            : window.location.origin;
         const response = await fetch(`${API_URL}/api/vehicle-info?number=${encodedNumber}`);
         const data = await response.json();
 
