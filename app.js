@@ -56,9 +56,17 @@ async function searchVehicle() {
 
     try {
         const encodedNumber = encodeURIComponent(vehicleNumber);
-        // The API endpoint will be at /api/vehicle-info in both development and production
-        const response = await fetch(`/api/vehicle-info?number=${encodedNumber}`);
+        const API_URL = window.location.hostname === 'localhost' 
+            ? 'http://localhost:8080/api/vehicle-info' 
+            : '/api/vehicle-info';
+            
+        const response = await fetch(`${API_URL}?number=${encodedNumber}`);
+        if (!response.ok) {
+            throw new Error(`HTTP error! status: ${response.status}`);
+        }
+        
         const data = await response.json();
+        console.log('API Response:', data); // Debug log
 
         if (data.status === 'success') {
             displayResult(data);
@@ -66,6 +74,7 @@ async function searchVehicle() {
             showError('Failed to fetch vehicle information. Please try again.');
         }
     } catch (error) {
+        console.error('Error fetching vehicle data:', error); // Debug log
         showError('An error occurred while fetching the data. Please try again.');
     } finally {
         hideLoading();

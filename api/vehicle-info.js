@@ -1,6 +1,5 @@
-const fetch = require('node-fetch');
-
-module.exports = async (req, res) => {
+// Using native fetch instead of node-fetch for Vercel environment
+export default async function handler(req, res) {
     // Enable CORS
     res.setHeader('Access-Control-Allow-Credentials', true);
     res.setHeader('Access-Control-Allow-Origin', '*');
@@ -19,10 +18,25 @@ module.exports = async (req, res) => {
             return res.status(400).json({ status: 'error', message: 'Vehicle number is required' });
         }
 
-        const response = await fetch(`https://botmaker.serv00.net/vehicle-info.php?number=${number}`);
+        const response = await fetch(`https://botmaker.serv00.net/vehicle-info.php?number=${number}`, {
+            method: 'GET',
+            headers: {
+                'Accept': 'application/json'
+            }
+        });
+
+        if (!response.ok) {
+            throw new Error(`HTTP error! status: ${response.status}`);
+        }
+
         const data = await response.json();
-        res.json(data);
+        return res.status(200).json(data);
     } catch (error) {
-        res.status(500).json({ status: 'error', message: error.message });
+        console.error('API Error:', error);
+        return res.status(500).json({ 
+            status: 'error', 
+            message: 'An error occurred while fetching vehicle information',
+            error: error.message 
+        });
     }
-};
+}
